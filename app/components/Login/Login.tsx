@@ -24,9 +24,46 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useEffect, useState } from "react";
+import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
+import { auth } from "../backend/database/firebase";
 
 export default function LoginPage() {
   const [stateSignUp, setStateSignUp] = useState(false);
+  const [signUpState, setSignUpState] = useState(false);
+  //
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const [errorNotification, setErrorNotification] = useState("");
+  const [errorEmail, setErrorEmail] = useState("");
+  const [disableButton, setDisableButton] = useState(false);
+
+  const handleChangeEmail = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setEmail(value);
+
+    // Validasi email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(value)) {
+      setErrorEmail("Email is invalid");
+    } else {
+      setErrorEmail("");
+    }
+  };
+
+  const [errorPassword, setErrorPassword] = useState("");
+
+  const handleChangePassword = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setPassword(value);
+
+    if (value.length < 6) {
+      setErrorPassword("Password must 6 numbers");
+    } else {
+      setErrorPassword("");
+    }
+  };
 
   // Handle State Sign Up
   const handleStateSignUp = () => {
@@ -37,6 +74,46 @@ export default function LoginPage() {
     console.log(stateSignUp);
   }, [stateSignUp]);
 
+  useEffect(() => {
+    if (errorEmail && errorPassword) {
+      setDisableButton(true);
+      return setErrorNotification(
+        "Invalid character or invalid email & password"
+      );
+    } else if (!errorEmail && errorPassword) {
+      setDisableButton(true);
+      return setErrorNotification(
+        "Invalid character or invalid email & password"
+      );
+    } else if (errorEmail && !errorPassword) {
+      setDisableButton(true);
+      return setErrorNotification(
+        "Invalid character or invalid email & password"
+      );
+    } else {
+      setDisableButton(false);
+    }
+  }, [errorEmail, errorPassword, disableButton]);
+
+  const handleSignUp = async () => {
+    try {
+      const userCredentials = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password
+      );
+      const user = userCredentials.user;
+
+      await updateProfile(user, {
+        displayName: name,
+      });
+      console.log(userCredentials);
+      setSignUpState(true);
+    } catch (e) {
+      console.log(e);
+      setSignUpState(false);
+    }
+  };
   return (
     <div className="w-full max-w-7xl justify-center items-center flex flex-col h-screen">
       {/** Header */}
@@ -53,6 +130,9 @@ export default function LoginPage() {
           <CardHeader>
             <CardTitle>Sign Up</CardTitle>
             <CardDescription>Please fill the needed forms</CardDescription>
+            {errorEmail && errorPassword && (
+              <p className="text-red-500 text-[11px]">{errorNotification}</p>
+            )}
           </CardHeader>
           <CardContent>
             <form>
@@ -63,6 +143,7 @@ export default function LoginPage() {
                     id="text"
                     type="text"
                     placeholder="Your Name"
+                    onChange={(e) => setName(e.target.value)}
                     required
                   />
                 </div>
@@ -72,8 +153,12 @@ export default function LoginPage() {
                     id="email"
                     type="email"
                     placeholder="e.g JohnDoe@gmail.com"
+                    onChange={(e) => handleChangeEmail(e)}
                     required
                   />
+                  {errorEmail && (
+                    <p className="text-red-500 text-[11px]">{errorEmail}</p>
+                  )}
                 </div>
                 <div className="grid gap-2">
                   <Label htmlFor="password">Password</Label>
@@ -81,39 +166,72 @@ export default function LoginPage() {
                     id="password"
                     type="password"
                     placeholder="Password"
+                    onChange={(e) => handleChangePassword(e)}
                     required
                   />
+                  {errorPassword && (
+                    <p className="text-red-500 text-[11px]">{errorPassword}</p>
+                  )}
                 </div>
               </div>
             </form>
           </CardContent>
           <CardFooter className="flex-col gap-2">
             <AlertDialog>
-              <AlertDialogTrigger className="w-full bg-black p-2 rounded-md text-white">
-                Sign Up
+              <AlertDialogTrigger asChild>
+                <Button
+                  disabled={disableButton}
+                  variant={"default"}
+                  onClick={() => handleSignUp()}
+                  className="w-full"
+                >
+                  Sign Up
+                </Button>
               </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Account has been Created!</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    You can Back to Login Page
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction onClick={() => handleStateSignUp()}>
-                    Back
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-              <Button
-                variant={"outline"}
-                className="w-full"
-                onClick={() => handleStateSignUp()}
-              >
-                Back
-              </Button>
+              {signUpState ? (
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>
+                      Account has been Created!
+                    </AlertDialogTitle>
+                    <AlertDialogDescription>
+                      You can Back to Login Page
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction onClick={() => handleStateSignUp()}>
+                      Back
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              ) : (
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>
+                      Failed to Create user Account!
+                    </AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Back to login page or Report an issue
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction onClick={() => handleStateSignUp()}>
+                      Back
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              )}
             </AlertDialog>
+
+            <Button
+              variant={"outline"}
+              className="w-full"
+              onClick={() => handleStateSignUp()}
+            >
+              Back
+            </Button>
           </CardFooter>
         </Card>
       ) : (
