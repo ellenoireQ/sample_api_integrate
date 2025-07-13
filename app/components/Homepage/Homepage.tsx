@@ -1,3 +1,4 @@
+"use client";
 import {
   Calculator,
   Calendar,
@@ -46,8 +47,50 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useEffect, useState } from "react";
+import { db } from "../backend/database/firebase";
+import { getAuth } from "firebase/auth";
+import { addDoc, collection } from "firebase/firestore";
 
+interface Database {
+  table_name: string;
+  cols: [
+    {
+      name1: string;
+      value1: any;
+      name2: string;
+      value2: string;
+    }
+  ];
+}
 export default function Homepage() {
+  const [tableName, setTableName] = useState("");
+  const [nameCols1, setNameCols1] = useState("");
+  const [valueCols1, setValueCols1] = useState("");
+  const [nameCols2, setNameCols2] = useState("");
+  const [valueCols2, setValueCols2] = useState("");
+
+  const [DB, setDB] = useState<Database[]>([]);
+  const handleSubmit = async () => {
+    //const db = await getAuth();
+    try {
+      const dbX = await addDoc(collection(db, "user"), {
+        table_name: tableName,
+        nameCols1: nameCols1,
+        valueCols1: valueCols1,
+        nameCols2: nameCols2 ? nameCols2 : null,
+        valueCols2: valueCols2 ? valueCols2 : null,
+      });
+      console.log(dbX);
+    } catch (e) {
+      console.log(e);
+    }
+  };
+  useEffect(() => {
+    DB.map((it) => {
+      console.log(it.table_name);
+    });
+  });
   return (
     <div className="w-full h-screen flex">
       <aside>
@@ -103,7 +146,15 @@ export default function Homepage() {
               <div className="flex flex-col gap-6">
                 <div className="grid gap-2">
                   <Label htmlFor="email">Table</Label>
-                  <Input id="text" type="text" placeholder="Table 1" required />
+                  <Input
+                    id="text"
+                    type="text"
+                    placeholder="Table 1"
+                    onChange={(e) => {
+                      setTableName(e.target.value);
+                    }}
+                    required
+                  />
                 </div>
                 <div className="grid gap-2">
                   <Label htmlFor="email">Col 1</Label>
@@ -113,8 +164,15 @@ export default function Homepage() {
                       type="text"
                       placeholder="Content Name"
                       required
+                      onChange={(e) => setNameCols1(e.target.value)}
                     />
-                    <Input id="text" type="text" placeholder="Value" required />
+                    <Input
+                      id="text"
+                      type="text"
+                      placeholder="Value"
+                      required
+                      onChange={(e) => setValueCols1(e.target.value)}
+                    />
                   </div>
                 </div>
                 <div className="grid gap-2">
@@ -125,27 +183,26 @@ export default function Homepage() {
                       type="text"
                       placeholder="Content Name"
                       required
+                      onChange={(e) => setNameCols2(e.target.value)}
                     />
-                    <Input id="text" type="text" placeholder="Value" required />
-                  </div>
-                </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="email">Col 3</Label>
-                  <div className="flex gap-2">
                     <Input
                       id="text"
                       type="text"
-                      placeholder="Content Name"
+                      placeholder="Value"
                       required
+                      onChange={(e) => setValueCols2(e.target.value)}
                     />
-                    <Input id="text" type="text" placeholder="Value" required />
                   </div>
                 </div>
               </div>
             </form>
           </CardContent>
           <CardFooter className="flex-col gap-2">
-            <Button type="submit" className="w-full">
+            <Button
+              type="submit"
+              className="w-full"
+              onClick={() => handleSubmit()}
+            >
               Push
             </Button>
             <Button variant="outline" className="w-full">
