@@ -6,6 +6,7 @@ import {
   Database,
   DatabaseBackup,
   Eye,
+  FileJson,
   Plus,
   Settings,
   Smile,
@@ -70,6 +71,8 @@ export default function Homepage() {
   const [nameCols2, setNameCols2] = useState("");
   const [valueCols2, setValueCols2] = useState("");
 
+  const [addingDb, setAddingDb] = useState(false);
+
   const [DB, setDB] = useState<Database[]>([]);
   const handleSubmit = async () => {
     //const db = await getAuth();
@@ -83,6 +86,7 @@ export default function Homepage() {
       });
       console.log(dbX);
     } catch (e) {
+      setAddingDb(false);
       console.log(e);
     }
   };
@@ -91,23 +95,20 @@ export default function Homepage() {
       console.log(it.table_name);
     });
   });
+
   return (
     <div className="w-full h-screen flex">
       <aside>
         <Command className="md:min-w-[350px] border bg-sidebar md:block hidden">
           <CommandList>
-            <CommandGroup heading="Database">
-              <CommandItem>
+            <CommandGroup heading="Quick Tools">
+              <CommandItem onSelect={() => setAddingDb(true)}>
                 <Database />
-                <span>Add</span>
+                <span>Add Database</span>
               </CommandItem>
               <CommandItem>
-                <Trash />
-                <span>Delete</span>
-              </CommandItem>
-              <CommandItem>
-                <Eye />
-                <span>Show</span>
+                <FileJson />
+                <span>Json</span>
               </CommandItem>
               <CommandItem>
                 <Table />
@@ -136,80 +137,86 @@ export default function Homepage() {
         </Command>
       </aside>
       <div className="w-full flex justify-center items-center">
-        <Card className="w-full max-w-sm">
-          <CardHeader>
-            <CardTitle>Database</CardTitle>
-            <CardDescription>Fill your data at here!</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form>
-              <div className="flex flex-col gap-6">
-                <div className="grid gap-2">
-                  <Label htmlFor="email">Table</Label>
-                  <Input
-                    id="text"
-                    type="text"
-                    placeholder="Table 1"
-                    onChange={(e) => {
-                      setTableName(e.target.value);
-                    }}
-                    required
-                  />
-                </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="email">Col 1</Label>
-                  <div className="flex gap-2">
+        {addingDb && (
+          <Card className="w-full max-w-sm">
+            <CardHeader>
+              <CardTitle>Database</CardTitle>
+              <CardDescription>Fill your data at here!</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form>
+                <div className="flex flex-col gap-6">
+                  <div className="grid gap-2">
+                    <Label htmlFor="email">Table</Label>
                     <Input
                       id="text"
                       type="text"
-                      placeholder="Content Name"
+                      placeholder="Table 1"
+                      onChange={(e) => {
+                        setTableName(e.target.value);
+                      }}
                       required
-                      onChange={(e) => setNameCols1(e.target.value)}
-                    />
-                    <Input
-                      id="text"
-                      type="text"
-                      placeholder="Value"
-                      required
-                      onChange={(e) => setValueCols1(e.target.value)}
                     />
                   </div>
-                </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="email">Col 2</Label>
-                  <div className="flex gap-2">
-                    <Input
-                      id="text"
-                      type="text"
-                      placeholder="Content Name"
-                      required
-                      onChange={(e) => setNameCols2(e.target.value)}
-                    />
-                    <Input
-                      id="text"
-                      type="text"
-                      placeholder="Value"
-                      required
-                      onChange={(e) => setValueCols2(e.target.value)}
-                    />
+                  <div className="grid gap-2">
+                    <Label htmlFor="email">Col 1</Label>
+                    <div className="flex gap-2">
+                      <Input
+                        id="text"
+                        type="text"
+                        placeholder="Content Name"
+                        required
+                        onChange={(e) => setNameCols1(e.target.value)}
+                      />
+                      <Input
+                        id="text"
+                        type="text"
+                        placeholder="Value"
+                        required
+                        onChange={(e) => setValueCols1(e.target.value)}
+                      />
+                    </div>
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="email">Col 2</Label>
+                    <div className="flex gap-2">
+                      <Input
+                        id="text"
+                        type="text"
+                        placeholder="Content Name"
+                        required
+                        onChange={(e) => setNameCols2(e.target.value)}
+                      />
+                      <Input
+                        id="text"
+                        type="text"
+                        placeholder="Value"
+                        required
+                        onChange={(e) => setValueCols2(e.target.value)}
+                      />
+                    </div>
                   </div>
                 </div>
-              </div>
-            </form>
-          </CardContent>
-          <CardFooter className="flex-col gap-2">
-            <Button
-              type="submit"
-              className="w-full"
-              onClick={() => handleSubmit()}
-            >
-              Push
-            </Button>
-            <Button variant="outline" className="w-full">
-              Close
-            </Button>
-          </CardFooter>
-        </Card>
+              </form>
+            </CardContent>
+            <CardFooter className="flex-col gap-2">
+              <Button
+                type="submit"
+                className="w-full"
+                onClick={() => handleSubmit()}
+              >
+                Push
+              </Button>
+              <Button
+                variant="outline"
+                className="w-full"
+                onClick={() => setAddingDb(false)}
+              >
+                Close
+              </Button>
+            </CardFooter>
+          </Card>
+        )}
       </div>
     </div>
   );
