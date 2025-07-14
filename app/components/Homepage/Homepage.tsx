@@ -99,6 +99,8 @@ export default function Homepage() {
 
   const [jsonMode, setJsonMode] = useState(false);
 
+  const [tableMode, setTableMode] = useState(false);
+
   const handleSubmit = async () => {
     //const db = await getAuth();
     try {
@@ -140,9 +142,20 @@ export default function Homepage() {
     try {
       setJsonMode(true);
       setAddingDb(false);
+      setTableMode(false);
     } catch {
       setAddingDb(true);
       setJsonMode(false);
+    }
+  };
+
+  const handleTableMode = () => {
+    try {
+      setJsonMode(false);
+      setAddingDb(false);
+      setTableMode(true);
+    } catch {
+      setTableMode(false);
     }
   };
   return (
@@ -159,7 +172,7 @@ export default function Homepage() {
                 <FileJson />
                 <span>Json (jsonPlaceholder)</span>
               </CommandItem>
-              <CommandItem>
+              <CommandItem onSelect={() => handleTableMode()}>
                 <Table2 />
                 <span>Table Database</span>
               </CommandItem>
@@ -265,6 +278,45 @@ export default function Homepage() {
               </Button>
             </CardFooter>
           </Card>
+        </div>
+      )}
+
+      {!addingDb && !jsonMode && tableMode && (
+        <div className="w-screen h-fit grid md:grid-cols-4 grid-cols-2 p-2 gap-4">
+          {jsonPlaceholder.map((it, index) => (
+            <Card className="w-full max-w-sm" key={index}>
+              <CardHeader>
+                <CardTitle>Table</CardTitle>
+                <CardDescription>iptab</CardDescription>
+                <hr></hr>
+              </CardHeader>
+              <CardContent>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="w-[100px]">ID</TableHead>
+                      <TableHead>Name</TableHead>
+                      <TableHead>Value</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    <TableRow>
+                      <TableCell className="font-medium">{it.id}</TableCell>
+                      <TableCell>{it.tittle}</TableCell>
+                      <TableCell>{it.body}</TableCell>
+                    </TableRow>
+                  </TableBody>
+                </Table>
+              </CardContent>
+              <CardFooter>
+                <div className="flex w-full justify-end">
+                  <Button variant={"destructive"} className="bg-red-700">
+                    <Trash />
+                  </Button>
+                </div>
+              </CardFooter>
+            </Card>
+          ))}
         </div>
       )}
 
