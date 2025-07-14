@@ -63,9 +63,10 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useEffect, useState } from "react";
-import { db } from "../components/backend/database/firebase";
-import { getAuth } from "firebase/auth";
+import { auth, db } from "../components/backend/database/firebase";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { addDoc, collection, getDocs } from "firebase/firestore";
+import { useRouter } from "next/navigation";
 
 interface Database {
   table_name: string;
@@ -86,6 +87,7 @@ interface JsonPlaceholder {
   body: string;
 }
 export default function Homepage() {
+  const router = useRouter();
   const [tableName, setTableName] = useState("");
   const [nameCols1, setNameCols1] = useState("");
   const [valueCols1, setValueCols1] = useState("");
@@ -192,6 +194,18 @@ export default function Homepage() {
       //
     }
   }, [database]);
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        router.push("/");
+      } else {
+        //
+      }
+    });
+
+    return () => unsubscribe();
+  }, [router]);
   return (
     <div className="w-full h-screen flex">
       <aside>
