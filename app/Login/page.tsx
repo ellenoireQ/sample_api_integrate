@@ -137,7 +137,7 @@ export default function LoginPage() {
     <div className="w-full max-w-7xl justify-center items-center flex flex-col h-screen">
       {/** Header */}
       <div className="absolute top-0 w-full flex justify-between p-5">
-        <h1 className="text-2xl font-thin">Ecommerce</h1>
+        <h1 className="text-2xl font-thin">App</h1>
         <div className="flex gap-2">
           <Button variant={"default"}>Login</Button>
           <Button variant={"outline"}>SIgn in</Button>
