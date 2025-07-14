@@ -65,7 +65,7 @@ import { Label } from "@/components/ui/label";
 import { useEffect, useState } from "react";
 import { db } from "../backend/database/firebase";
 import { getAuth } from "firebase/auth";
-import { addDoc, collection } from "firebase/firestore";
+import { addDoc, collection, getDocs } from "firebase/firestore";
 
 interface Database {
   table_name: string;
@@ -101,6 +101,8 @@ export default function Homepage() {
 
   const [tableMode, setTableMode] = useState(false);
 
+  const [database, setDatabase] = useState<any[]>([]);
+
   const handleSubmit = async () => {
     //const db = await getAuth();
     try {
@@ -120,7 +122,7 @@ export default function Homepage() {
 
   useEffect(() => {
     handleJsonPlaceholder();
-  });
+  }, []);
 
   const handleJsonPlaceholder = async () => {
     try {
@@ -158,6 +160,38 @@ export default function Homepage() {
       setTableMode(false);
     }
   };
+
+  const getData = async () => {
+    try {
+      const querySnapshot = await getDocs(collection(db, "user"));
+      const newData: any[] = [];
+      querySnapshot.forEach((doc) => {
+        const data = doc.data();
+        const alreadyExists = newData.some(
+          (item) =>
+            item.table_name === data.table_name &&
+            item.nameCols1 === data.nameCols1 &&
+            item.valueCols1 === data.valueCols1 &&
+            item.nameCols2 === data.nameCols2 &&
+            item.valueCols2 === data.valueCols2
+        );
+        if (!alreadyExists) {
+          newData.push(data);
+        }
+      });
+      setDatabase(newData);
+    } catch {
+      //
+    }
+  };
+
+  useEffect(() => {
+    try {
+      getData();
+    } catch {
+      //
+    }
+  }, [database]);
   return (
     <div className="w-full h-screen flex">
       <aside>
@@ -178,27 +212,10 @@ export default function Homepage() {
               </CommandItem>
             </CommandGroup>
             <CommandSeparator />
-            <CommandGroup heading="Settings">
-              <CommandItem>
-                <User />
-                <span>Profile</span>
-                <CommandShortcut>⌘P</CommandShortcut>
-              </CommandItem>
-              <CommandItem>
-                <CreditCard />
-                <span>Billing</span>
-                <CommandShortcut>⌘B</CommandShortcut>
-              </CommandItem>
-              <CommandItem>
-                <Settings />
-                <span>Settings</span>
-                <CommandShortcut>⌘S</CommandShortcut>
-              </CommandItem>
-            </CommandGroup>
           </CommandList>
         </Command>
       </aside>
-      {addingDb && jsonMode && (
+      {addingDb && (
         <div className="w-full flex h-full justify-center items-center">
           <Card className="w-full max-w-sm">
             <CardHeader>
@@ -283,11 +300,11 @@ export default function Homepage() {
 
       {!addingDb && !jsonMode && tableMode && (
         <div className="w-screen h-fit grid md:grid-cols-4 grid-cols-2 p-2 gap-4">
-          {jsonPlaceholder.map((it, index) => (
+          {database.map((it, index) => (
             <Card className="w-full max-w-sm" key={index}>
               <CardHeader>
                 <CardTitle>Table</CardTitle>
-                <CardDescription>iptab</CardDescription>
+                <CardDescription>{it.table_name}</CardDescription>
                 <hr></hr>
               </CardHeader>
               <CardContent>
@@ -297,13 +314,19 @@ export default function Homepage() {
                       <TableHead className="w-[100px]">ID</TableHead>
                       <TableHead>Name</TableHead>
                       <TableHead>Value</TableHead>
+                      <TableHead>Name</TableHead>
+                      <TableHead>Value</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     <TableRow>
-                      <TableCell className="font-medium">{it.id}</TableCell>
-                      <TableCell>{it.tittle}</TableCell>
-                      <TableCell>{it.body}</TableCell>
+                      <TableCell className="font-medium">
+                        {it.table_name}
+                      </TableCell>
+                      <TableCell>{it.nameCols1}</TableCell>
+                      <TableCell>{it.valueCols1}</TableCell>
+                      <TableCell>{it.nameCols2}</TableCell>
+                      <TableCell>{it.valueCols2}</TableCell>
                     </TableRow>
                   </TableBody>
                 </Table>
@@ -320,7 +343,7 @@ export default function Homepage() {
         </div>
       )}
 
-      {!addingDb && (
+      {!addingDb && jsonMode && (
         <div className="w-screen h-fit grid md:grid-cols-4 grid-cols-2 p-2 gap-4">
           {jsonPlaceholder.map((it, index) => (
             <Card className="w-full max-w-sm" key={index}>
