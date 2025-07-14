@@ -10,7 +10,7 @@ import {
   Plus,
   Settings,
   Smile,
-  Table,
+  Table2,
   Trash,
   User,
 } from "lucide-react";
@@ -46,6 +46,20 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  ResizableHandle,
+  ResizablePanel,
+  ResizablePanelGroup,
+} from "@/components/ui/resizable";
+import {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useEffect, useState } from "react";
@@ -64,6 +78,13 @@ interface Database {
     }
   ];
 }
+
+interface JsonPlaceholder {
+  userId: number;
+  id: number;
+  tittle: string;
+  body: string;
+}
 export default function Homepage() {
   const [tableName, setTableName] = useState("");
   const [nameCols1, setNameCols1] = useState("");
@@ -74,6 +95,10 @@ export default function Homepage() {
   const [addingDb, setAddingDb] = useState(false);
 
   const [DB, setDB] = useState<Database[]>([]);
+  const [jsonPlaceholder, setJsonPlaceholder] = useState<JsonPlaceholder[]>([]);
+
+  const [jsonMode, setJsonMode] = useState(false);
+
   const handleSubmit = async () => {
     //const db = await getAuth();
     try {
@@ -90,12 +115,26 @@ export default function Homepage() {
       console.log(e);
     }
   };
+
   useEffect(() => {
-    DB.map((it) => {
-      console.log(it.table_name);
-    });
+    handleJsonPlaceholder();
   });
 
+  const handleJsonPlaceholder = async () => {
+    try {
+      const uri = await fetch("https://jsonplaceholder.typicode.com/posts");
+      const res = await uri.json();
+      const parsed = res.map((item: any) => ({
+        id: item.id,
+        userId: item.userId,
+        tittle: item.title,
+        body: item.body,
+      }));
+      setJsonPlaceholder(parsed);
+    } catch (e) {
+      console.log(e);
+    }
+  };
   return (
     <div className="w-full h-screen flex">
       <aside>
@@ -106,12 +145,12 @@ export default function Homepage() {
                 <Database />
                 <span>Add Database</span>
               </CommandItem>
-              <CommandItem>
+              <CommandItem onSelect={() => setJsonMode(true)}>
                 <FileJson />
-                <span>Json</span>
+                <span>Json (jsonPlaceholder)</span>
               </CommandItem>
               <CommandItem>
-                <Table />
+                <Table2 />
                 <span>Table</span>
               </CommandItem>
             </CommandGroup>
@@ -136,8 +175,8 @@ export default function Homepage() {
           </CommandList>
         </Command>
       </aside>
-      <div className="w-full flex justify-center items-center">
-        {addingDb && (
+      {addingDb && jsonMode && (
+        <div className="w-full flex h-full justify-center items-center">
           <Card className="w-full max-w-sm">
             <CardHeader>
               <CardTitle>Database</CardTitle>
@@ -216,8 +255,47 @@ export default function Homepage() {
               </Button>
             </CardFooter>
           </Card>
-        )}
-      </div>
+        </div>
+      )}
+
+      {!addingDb && (
+        <div className="w-screen h-fit grid md:grid-cols-4 grid-cols-2 p-2 gap-4">
+          {jsonPlaceholder.map((it, index) => (
+            <Card className="w-full max-w-sm" key={index}>
+              <CardHeader>
+                <CardTitle>Table</CardTitle>
+                <CardDescription>iptab</CardDescription>
+                <hr></hr>
+              </CardHeader>
+              <CardContent>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="w-[100px]">ID</TableHead>
+                      <TableHead>Name</TableHead>
+                      <TableHead>Value</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    <TableRow>
+                      <TableCell className="font-medium">{it.id}</TableCell>
+                      <TableCell>{it.tittle}</TableCell>
+                      <TableCell>{it.body}</TableCell>
+                    </TableRow>
+                  </TableBody>
+                </Table>
+              </CardContent>
+              <CardFooter>
+                <div className="flex w-full justify-end">
+                  <Button variant={"destructive"} className="bg-red-700">
+                    <Trash />
+                  </Button>
+                </div>
+              </CardFooter>
+            </Card>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
