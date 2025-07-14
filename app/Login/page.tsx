@@ -26,7 +26,6 @@ import { Label } from "@/components/ui/label";
 import { useEffect, useState } from "react";
 import {
   createUserWithEmailAndPassword,
-  getAuth,
   signInWithEmailAndPassword,
   updateProfile,
 } from "firebase/auth";
@@ -109,7 +108,7 @@ export default function LoginPage() {
         email,
         password
       );
-      userCredentials;
+      await userCredentials;
       setSignUpState(true);
       const user = userCredentials.user;
 

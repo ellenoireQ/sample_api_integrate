@@ -1,45 +1,16 @@
 "use client";
-import {
-  Calculator,
-  Calendar,
-  CreditCard,
-  Database,
-  DatabaseBackup,
-  Eye,
-  FileJson,
-  Plus,
-  Settings,
-  Smile,
-  Table2,
-  Trash,
-  User,
-} from "lucide-react";
+import { Database, FileJson, Table2, Trash } from "lucide-react";
 
 import {
   Command,
-  CommandEmpty,
   CommandGroup,
-  CommandInput,
   CommandItem,
   CommandList,
   CommandSeparator,
-  CommandShortcut,
 } from "@/components/ui/command";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import {
   Card,
-  CardAction,
   CardContent,
   CardDescription,
   CardFooter,
@@ -47,14 +18,8 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import {
-  ResizableHandle,
-  ResizablePanel,
-  ResizablePanelGroup,
-} from "@/components/ui/resizable";
-import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
   TableHead,
   TableHeader,
@@ -64,7 +29,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useEffect, useState } from "react";
 import { auth, db } from "../components/backend/database/firebase";
-import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { onAuthStateChanged } from "firebase/auth";
 import { addDoc, collection, getDocs } from "firebase/firestore";
 import { useRouter } from "next/navigation";
 
@@ -73,7 +38,7 @@ interface Database {
   cols: [
     {
       name1: string;
-      value1: any;
+      value1: string;
       name2: string;
       value2: string;
     }
@@ -96,7 +61,6 @@ export default function Homepage() {
 
   const [addingDb, setAddingDb] = useState(false);
 
-  const [DB, setDB] = useState<Database[]>([]);
   const [jsonPlaceholder, setJsonPlaceholder] = useState<JsonPlaceholder[]>([]);
 
   const [jsonMode, setJsonMode] = useState(false);
