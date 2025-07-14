@@ -109,13 +109,14 @@ export default function LoginPage() {
         email,
         password
       );
+      userCredentials;
+      setSignUpState(true);
       const user = userCredentials.user;
 
       await updateProfile(user, {
         displayName: name,
       });
       console.log(userCredentials);
-      setSignUpState(true);
     } catch (e) {
       console.log(e);
       setSignUpState(false);
