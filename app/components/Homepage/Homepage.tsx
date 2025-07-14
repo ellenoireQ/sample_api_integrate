@@ -135,6 +135,16 @@ export default function Homepage() {
       console.log(e);
     }
   };
+
+  const handleJsonMode = () => {
+    try {
+      setJsonMode(true);
+      setAddingDb(false);
+    } catch {
+      setAddingDb(true);
+      setJsonMode(false);
+    }
+  };
   return (
     <div className="w-full h-screen flex">
       <aside>
@@ -145,13 +155,13 @@ export default function Homepage() {
                 <Database />
                 <span>Add Database</span>
               </CommandItem>
-              <CommandItem onSelect={() => setJsonMode(true)}>
+              <CommandItem onSelect={() => handleJsonMode()}>
                 <FileJson />
                 <span>Json (jsonPlaceholder)</span>
               </CommandItem>
               <CommandItem>
                 <Table2 />
-                <span>Table</span>
+                <span>Table Database</span>
               </CommandItem>
             </CommandGroup>
             <CommandSeparator />
